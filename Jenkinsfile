@@ -3,8 +3,9 @@ pipeline {
 
     environment {
         NODE_VERSION = '18.20.4'
-        EMAIL_RECIPIENT = 's223623837@deakin.edu.au'
-        NVM_DIR = "${env.HOME}/.nvm"
+        DIRECTORY_PATH = '/path/to/code'
+        TESTING_ENVIRONMENT = 'TestEnv'
+        PRODUCTION_ENVIRONMENT = 'Bidhan Gupta'
     }
 
     stages {
@@ -49,10 +50,29 @@ pipeline {
             }
         }
 
+        
+
+        stage('Build') {
+            steps {
+                script {
+                    echo "fetch the source code from the directory path specified by the environment variable"
+                    }
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    echo "compile the code and generate any necessary artifacts"
+                    }
+            }
+        }
+
         stage('Test') {
             steps {
                 script {
-                    echo 'Running unit tests...'
+                    echo 'unit tests'
+                    echo 'integration tests'
                     sh """
                     export NVM_DIR="${env.NVM_DIR}"
                     [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
@@ -63,17 +83,36 @@ pipeline {
             }
         }
 
-        // You might include this stage if you want to start the app during the pipeline
-        stage('Start Application') {
+        stage('Code Quality Check') {
             steps {
                 script {
-                    echo 'Starting the application...'
-                    sh """
-                    export NVM_DIR="${env.NVM_DIR}"
-                    [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
-                    nvm use ${NODE_VERSION}
-                    npm start
-                    """
+                    echo "Checking the quality of the code."
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    echo "Deploying the application to a testing environment specified by the environment variable: ${env.TESTING_ENVIRONMENT}"
+                }
+            }
+        }
+
+
+        stage('Approval') {
+            steps {
+                script {
+                    echo "Waiting for manual approval..."
+                    sleep time: 10, unit: 'SECONDS' 
+                }
+            }
+        }
+
+        stage('Deploy to Production') {
+            steps {
+                script {
+                    echo "Deploying the application to the production environment: ${env.PRODUCTION_ENVIRONMENT}"
                 }
             }
         }
@@ -88,17 +127,6 @@ pipeline {
         failure {
             script {
                 echo 'Pipeline failed.'
-            }
-        }
-        always {
-            script {
-                echo 'Sending notification email...'
-                emailext(
-                    to: "${env.EMAIL_RECIPIENT}",
-                    subject: "Jenkins Pipeline - ${currentBuild.fullDisplayName}",
-                    body: "Pipeline ${currentBuild.fullDisplayName} completed with status: ${currentBuild.currentResult}. Check the Jenkins logs for more details.",
-                    attachLog: true
-                )
             }
         }
     }
