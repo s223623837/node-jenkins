@@ -6,6 +6,7 @@ pipeline {
         DIRECTORY_PATH = '/path/to/code'
         TESTING_ENVIRONMENT = 'TestEnv'
         PRODUCTION_ENVIRONMENT = 'Bidhan Gupta'
+        NVM_DIR = "$HOME/.nvm" 
     }
 
     stages {
@@ -44,33 +45,31 @@ pipeline {
                     export NVM_DIR="${env.NVM_DIR}"
                     [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
                     nvm use ${NODE_VERSION}
-                    npm install
+                    npm install || { echo 'npm install failed'; exit 1; }
                     """
                 }
             }
         }
 
-        
-
         stage('Build') {
             steps {
                 script {
-                    echo "fetch the source code from the directory path specified by the environment variable"
-                    echo "compile the code and generate any necessary artifacts"
-                    }
+                    echo "Fetching the source code from the directory path specified by the environment variable: ${env.DIRECTORY_PATH}"
+                    echo "Compiling the code and generating any necessary artifacts."
+                }
             }
         }
 
         stage('Test') {
             steps {
                 script {
-                    echo 'unit tests'
-                    echo 'integration tests'
+                    echo 'Running unit tests...'
+                    echo 'Running integration tests...'
                     sh """
                     export NVM_DIR="${env.NVM_DIR}"
                     [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
                     nvm use ${NODE_VERSION}
-                    npm test
+                    npm test || { echo 'Tests failed'; exit 1; }
                     """
                 }
             }
@@ -87,17 +86,16 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    echo "Deploying the application to a testing environment specified by the environment variable: ${env.TESTING_ENVIRONMENT}"
+                    echo "Deploying the application to the testing environment: ${env.TESTING_ENVIRONMENT}"
                 }
             }
         }
-
 
         stage('Approval') {
             steps {
                 script {
                     echo "Waiting for manual approval..."
-                    sleep time: 10, unit: 'SECONDS' 
+                    sleep time: 10, unit: 'SECONDS'
                 }
             }
         }
