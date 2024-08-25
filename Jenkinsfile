@@ -56,13 +56,6 @@ pipeline {
             steps {
                 script {
                     echo "fetch the source code from the directory path specified by the environment variable"
-                    }
-            }
-        }
-
-        stage('Build') {
-            steps {
-                script {
                     echo "compile the code and generate any necessary artifacts"
                     }
             }
