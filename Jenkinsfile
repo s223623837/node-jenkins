@@ -3,7 +3,8 @@ pipeline {
 
     environment {
         NODE_VERSION = '18.20.4'
-        EMAIL_RECIPIENT = 's223623837@deakin.edu.au' 
+        EMAIL_RECIPIENT = 's223623837@deakin.edu.au'
+        NVM_DIR = "${env.HOME}/.nvm"
     }
 
     stages {
@@ -21,17 +22,12 @@ pipeline {
                 script {
                     echo "Installing Node.js version ${NODE_VERSION}..."
                     sh """
-                    # Installing nvm (Node Version Manager)
                     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-                    export NVM_DIR="\$HOME/.nvm"
+                    export NVM_DIR="${env.NVM_DIR}"
                     [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
                     [ -s "\$NVM_DIR/bash_completion" ] && . "\$NVM_DIR/bash_completion"
-                    
-                    # Installing specific Node.js version
                     nvm install ${NODE_VERSION}
                     nvm use ${NODE_VERSION}
-                    
-                    # Verify Node.js and npm versions
                     node -v
                     npm -v
                     """
@@ -43,16 +39,12 @@ pipeline {
             steps {
                 script {
                     echo 'Installing Node.js dependencies...'
-                    sh 'npm install'
-                }
-            }
-        }
-
-        stage('Build') {
-            steps {
-                script {
-                    echo 'Building the application...'
-                    sh 'npm run build' // Adjust this if you have a specific build script
+                    sh """
+                    export NVM_DIR="${env.NVM_DIR}"
+                    [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
+                    nvm use ${NODE_VERSION}
+                    npm install
+                    """
                 }
             }
         }
@@ -61,7 +53,27 @@ pipeline {
             steps {
                 script {
                     echo 'Running unit tests...'
-                    sh 'npm test'
+                    sh """
+                    export NVM_DIR="${env.NVM_DIR}"
+                    [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
+                    nvm use ${NODE_VERSION}
+                    npm test
+                    """
+                }
+            }
+        }
+
+        // You might include this stage if you want to start the app during the pipeline
+        stage('Start Application') {
+            steps {
+                script {
+                    echo 'Starting the application...'
+                    sh """
+                    export NVM_DIR="${env.NVM_DIR}"
+                    [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
+                    nvm use ${NODE_VERSION}
+                    npm start
+                    """
                 }
             }
         }
