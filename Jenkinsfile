@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         NODE_VERSION = '18.20.4'
-        EMAIL_RECIPIENT = 's223623837@deakin.edu.au'
+        EMAIL_RECIPIENT = 's223623837@deakin.edu.au' 
     }
 
     stages {
@@ -20,12 +20,12 @@ pipeline {
             steps {
                 script {
                     echo "Installing Node.js version ${NODE_VERSION}..."
-                    sh '''#!/bin/bash
+                    sh """
                     # Installing nvm (Node Version Manager)
                     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-                    export NVM_DIR="$HOME/.nvm"
-                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-                    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+                    export NVM_DIR="\$HOME/.nvm"
+                    [ -s "\$NVM_DIR/nvm.sh" ] && . "\$NVM_DIR/nvm.sh"
+                    [ -s "\$NVM_DIR/bash_completion" ] && . "\$NVM_DIR/bash_completion"
                     
                     # Installing specific Node.js version
                     nvm install ${NODE_VERSION}
@@ -34,7 +34,7 @@ pipeline {
                     # Verify Node.js and npm versions
                     node -v
                     npm -v
-                    '''
+                    """
                 }
             }
         }
@@ -52,64 +52,16 @@ pipeline {
             steps {
                 script {
                     echo 'Building the application...'
-                    sh 'npm run build' // Assuming there's a build script in package.json
+                    sh 'npm run build' // Adjust this if you have a specific build script
                 }
             }
         }
 
-        stage('Unit and Integration Tests') {
+        stage('Test') {
             steps {
                 script {
-                    echo 'Running unit and integration tests...'
+                    echo 'Running unit tests...'
                     sh 'npm test'
-                }
-            }
-        }
-
-        stage('Code Analysis') {
-            steps {
-                script {
-                    echo 'Running code analysis...'
-                    sh 'npx eslint . || true' // Using ESLint for code analysis
-                }
-            }
-        }
-
-        stage('Security Scan') {
-            steps {
-                script {
-                    echo 'Performing security scan...'
-                    sh 'npx nsp check || true' // Using Node Security Platform (nsp) for security scan
-                }
-            }
-        }
-
-        stage('Deploy to Staging') {
-            steps {
-                script {
-                    echo 'Deploying to the staging environment...'
-                    // Replace with your deployment script or command
-                    sh 'echo Deploying to Staging...'
-                }
-            }
-        }
-
-        stage('Integration Tests on Staging') {
-            steps {
-                script {
-                    echo 'Running integration tests on the staging environment...'
-                    // Replace with your test script or command for staging
-                    sh 'echo Running tests on Staging...'
-                }
-            }
-        }
-
-        stage('Deploy to Production') {
-            steps {
-                script {
-                    echo 'Deploying to the production environment...'
-                    // Replace with your production deployment script or command
-                    sh 'echo Deploying to Production...'
                 }
             }
         }
