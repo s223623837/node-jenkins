@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         NODE_VERSION = '18.20.4'
-        EMAIL_RECIPIENT = 's223623837@deakin.edu.au' 
+        EMAIL_RECIPIENT = 's223623837@deakin.edu.au'
     }
 
     stages {
@@ -20,12 +20,12 @@ pipeline {
             steps {
                 script {
                     echo "Installing Node.js version ${NODE_VERSION}..."
-                    sh """
+                    sh '''#!/bin/bash
                     # Installing nvm (Node Version Manager)
                     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-                    export NVM_DIR="\$HOME/.nvm"
-                    [ -s "\$NVM_DIR/nvm.sh" ] && \. "\$NVM_DIR/nvm.sh"
-                    [ -s "\$NVM_DIR/bash_completion" ] && \. "\$NVM_DIR/bash_completion"
+                    export NVM_DIR="$HOME/.nvm"
+                    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+                    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
                     
                     # Installing specific Node.js version
                     nvm install ${NODE_VERSION}
@@ -34,7 +34,7 @@ pipeline {
                     # Verify Node.js and npm versions
                     node -v
                     npm -v
-                    """
+                    '''
                 }
             }
         }
